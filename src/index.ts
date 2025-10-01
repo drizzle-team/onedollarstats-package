@@ -14,7 +14,7 @@ const defaultConfig: Required<AnalyticsConfig> = {
 };
 
 class AnalyticsTracker {
-  private initialized = false;
+  private static instance: AnalyticsTracker | null = null;
 
   private autocollectSetupDone = false;
   private listeners: Array<{ type: EventTypes; listener: EventListener }> = [];
@@ -23,16 +23,23 @@ class AnalyticsTracker {
   private config: Required<AnalyticsConfig>;
   private lastPage: string | null = null;
 
-  constructor(userConfig: AnalyticsConfig = {}) {
-    this.config = { ...defaultConfig, ...userConfig };
-
-    // mark instance as initialized only on client
+  public static getInstance(userConfig: AnalyticsConfig = {}): AnalyticsTracker {
     if (!isClient()) {
-      this.initialized = false;
-      return;
+      console.warn("[onedollarstats] Running in non-browser environment. Returning no-op instance.");
+      return new AnalyticsTracker(userConfig); // Fresh no-op instance for SSR
     }
 
-    this.initialized = true;
+    if (!AnalyticsTracker.instance) {
+      AnalyticsTracker.instance = new AnalyticsTracker(userConfig);
+    }
+    return AnalyticsTracker.instance;
+  }
+
+  private constructor(userConfig: AnalyticsConfig = {}) {
+    this.config = { ...defaultConfig, ...userConfig };
+
+    // Skip setup in non-client environments
+    if (!isClient()) return;
 
     // Auto-start autocollect
     if (this.config.autocollect) this.setupAutocollect();
@@ -41,8 +48,6 @@ class AnalyticsTracker {
   // Handles localhost replacement, referrer, UTM parameters, and debug mode.
   // Uses img beacon then `navigator.sendBeacon` if available, otherwise falls back to `fetch`.
   private async send(data: Event): Promise<void> {
-    if (!this.initialized || !isClient()) return;
-
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
     if ((isLocalhost && !this.config.trackLocalhostAs) || isHeadlessBrowser) return;
 
@@ -114,7 +119,7 @@ class AnalyticsTracker {
 
   // Prevents duplicate pageviews and respects include/exclude page rules. Automatically parses UTM parameters from URL.
   private trackPageView({ path, props }: ViewArguments, checkBlock: boolean = false) {
-    if (!this.initialized || !isClient()) return;
+    if (!isClient()) return;
 
     const cleanPath = path || location.pathname;
 
@@ -139,7 +144,7 @@ class AnalyticsTracker {
    * @param extraProps Optional props object if path string is provided.
    */
   public async event(eventName: string, pathOrProps?: string | BaseProps, extraProps?: BaseProps) {
-    if (!this.initialized || !isClient()) return;
+    if (!isClient()) return;
 
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
     if ((isLocalhost && !this.config.trackLocalhostAs) || isHeadlessBrowser) return;
@@ -161,7 +166,7 @@ class AnalyticsTracker {
    * @param props Optional props when first arg is a path string.
    */
   public async view(pathOrProps?: string | BaseProps, props?: BaseProps) {
-    if (!this.initialized || !isClient()) return;
+    if (!isClient()) return;
 
     const args: ViewArguments = {};
 
@@ -267,25 +272,12 @@ class AnalyticsTracker {
   }
 }
 
-let singletonTracker: {
-  event: AnalyticsTracker["event"];
-  view: AnalyticsTracker["view"];
-  cleanup: AnalyticsTracker["cleanup"];
-} | null = null;
-
 export const Analytics = (userConfig: AnalyticsConfig = {}) => {
-  if (singletonTracker) {
-    return singletonTracker;
-  }
+  const instance = AnalyticsTracker.getInstance(userConfig);
 
-  const instance = new AnalyticsTracker(userConfig);
-
-  const tracker = {
+  return {
     event: instance.event.bind(instance),
     view: instance.view.bind(instance),
     cleanup: instance.cleanup.bind(instance)
   };
-
-  singletonTracker = tracker;
-  return tracker;
 };
