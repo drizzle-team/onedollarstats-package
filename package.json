@@ -1,12 +1,14 @@
 {
   "name": "onedollarstats",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A lightweight, zero-dependency analytics tracker for frontend apps",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc --emitDeclarationOnly && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=browser --format=esm --target=es2020 --sourcemap"
   },
+  "files": [ "dist" ],
   "keywords": [
     "analytics",
     "tracking",
@@ -16,8 +18,9 @@
   ],
   "author": "",
   "license": "MIT",
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
+  "packageManager": "pnpm@10.16.1",
   "devDependencies": {
+    "esbuild": "^0.25.10",
     "typescript": "^5.9.2"
   }
 }
