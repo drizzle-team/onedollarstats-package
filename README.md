@@ -3,28 +3,27 @@
 [![npm version](https://img.shields.io/npm/v/onedollarstats)](https://www.npmjs.com/package/onedollarstats)  
 [![Website](https://img.shields.io/badge/site-onedollarstats.com-blue)](https://onedollarstats.com/home)
 
-A lightweight, zero-dependency analytics tracker for front-end apps. OneDollarStats automatically collects pageviews, UTM parameters, and custom events with minimal setup.
+A lightweight, zero-dependency analytics tracker for client apps. OneDollarStats automatically collects pageviews, UTM parameters, and custom events with minimal setup.
 
 ## Features
 
-- Automatic pageview tracking (supports browser navigation, visibility changes, and hash routing)
-- UTM parameter extraction for campaigns
-- Click autocapture for elements with `data-s:event` or `data-s-event` attributes
-- Fallbacks for sending data: Image beacon → `sendBeacon` → `fetch`
+- Automatic pageview tracking (supports client/server side navigation, and hash routing)
+- Automatically sends UTM parameters
+- Automatically sends events on click on elements with `data-s-event` attributes
 - Zero dependencies, easy to integrate
 
 ## Installation
 
 ```bash
-pnpm install onedollarstats
+npm i onedollarstats
 ```
 
 ## Getting Started
 
 ### Configure analytics
 
-> ⚠️ Important: The tracker configuration is applied only once. Call configure() once in your app (usually at the entrypoint).
-> Calling view() or event() before configure() will automatically initialize the tracker with the default configuration.
+> ⚠️ Initialize the analytics on every page for static sites, and to the root layout(app entrypoint) in spa apps.
+> Calling `view` or `event` before `configure` will automatically initialize the tracker with the default configuration.
 
 ```ts
 import { configure } from "onedollarstats";
@@ -32,12 +31,14 @@ import { configure } from "onedollarstats";
 // Configure analytics
 configure({
   collectorUrl: "https://collector.onedollarstats.com/events",
-  autocollect: true, // automatically track pageviews & clicks
-  hashRouting: true // track SPA hash route changes
+  autocollect: true, // automatically tracks pageviews & clicks
+  hashRouting: true, // track SPA hash route changes
 });
 ```
 
-#### Track Pageviews
+#### Track Pageviews Manually
+
+По дефолут все пейджвью трекаются автоматически. Если вы хотите делать это вручную, и ставите `autocollect: false` тогда вы можете использовать функцию `view` для отправки пейдж вью 
 
 ```ts
 import { view } from "onedollarstats";
@@ -51,67 +52,29 @@ view("/checkout", { step: 2, plan: "pro" });
 
 #### Track Custom Events
 
-Custom events can be tracked in multiple ways:
+Аргументы функции `event` могут варироваться в зависимости от типа данных
 
 ```ts
 import { event } from "onedollarstats";
 
 // Simple event
-event("ButtonClicked");
+event("Purchase");
 
 // Event with a path
-event("SignupStarted", "/signup");
+event("Purchase", "/product");
 
 // Event with properties
-event("Purchase", { amount: 49, currency: "USD" });
+event("Purchase", { amount: 1, color: "green" });
 
 // Event with path + properties
-event("CheckoutStep", "/checkout", { step: 3 });
+event("Purchase", "/product", { amount: 1, color: "green" });
 ```
 
 ## API
 
-**Onedollarstats export four main methods:**
+#### `configure(config?: AnalyticsConfig)` initializes tracker with your configuration.
 
-### `configure(config?: AnalyticsConfig)`
-
-Initialize tracker with your configuration.
-
-**Parameters:**
-
-- `config` – Optional configuration object to customize behavior (collector URL, autocollect, hashRouting, etc.).
-
----
-
-### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)`
-
-Record a page view.
-
-**Parameters:**
-
-- `pathOrProps` – Optional URL path string or properties object
-- `props` – Optional properties if the first argument is a path string
-
----
-
-### `event(eventName: string, pathOrProps?: string |  Record<string, string>, extraProps?:  Record<string, string>)`
-
-Track a custom event.
-
-**Parameters:**
-
-- `eventName` – Event name
-- `pathOrProps` – Optional path string or properties object
-- `extraProps` – Optional properties if the first argument is a path string
-
----
-
-### `cleanup`
-
-Removes all event listeners and restores original `history.pushState`.
-Use when unmounting apps or cleaning up SPA components.
-
-## Configuration Options
+**Config Options:**
 
 | Option             | Type             | Default                                         | Description                                |
 | ------------------ | ---------------- | ----------------------------------------------- | ------------------------------------------ |
@@ -124,8 +87,30 @@ Use when unmounting apps or cleaning up SPA components.
 
 > **Notes:**
 >
-> - Manual calls to `view` or `event` **ignore** `excludePages`/`includePages`.
-> - By default, events from `localhost` are ignored. Use the `trackLocalhostAs` option to simulate a hostname for local testing.
+> - Manual calls of `view` or `event` **ignore** `excludePages`/`includePages`.
+> - By default, events from `localhost` are ignored. Use the `trackLocalhostAs` option to simulate a hostname for local development.
+---
+
+#### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)` sends a page view event.
+
+**Parameters:**
+
+- `pathOrProps` – Optional, если строка то это путь, если обьект то кастомные пропсы
+- `props` – Optional, properties if the first argument is a path string
+
+---
+
+#### `event(eventName: string, pathOrProps?: string |  Record<string, string>, props?:  Record<string, string>)` sends a custom event.
+
+**Parameters:**
+
+- `eventName` – Event name
+- `pathOrProps` – Optional, если строка то это путь, если обьект то кастомные пропсы
+- `props` – Optional, properties if the second argument is a path string
+
+---
+
+
 
 ## Click Autocapture
 
