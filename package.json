@@ -8,13 +8,18 @@
   "scripts": {
     "build": "tsc --emitDeclarationOnly && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=browser --format=esm --target=es2020 --sourcemap"
   },
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "analytics",
     "tracking",
-    "frontend",
+    "lightweight",
+    "zero-dependency",
+    "javascript",
+    "typescript",
     "events",
-    "pageview"
+    "onedollarstats"
   ],
   "author": "",
   "license": "MIT",
