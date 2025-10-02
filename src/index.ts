@@ -45,6 +45,19 @@ class AnalyticsTracker {
     if (this.config.autocollect) this.setupAutocollect();
   }
 
+  private async sendWithBeaconOrFetch(stringifiedBody: string): Promise<void> {
+    // First fallback: try sendBeacon
+    if (navigator.sendBeacon?.(this.config.collectorUrl, stringifiedBody)) return;
+
+    // Second fallback: use fetch() with keepalive
+    fetch(this.config.collectorUrl, {
+      method: "POST",
+      body: stringifiedBody,
+      headers: { "Content-Type": "application/json" },
+      keepalive: true
+    }).catch((err: Error) => console.error("[onedollarstats] fetch() failed:", err.message));
+  }
+
   // Handles localhost replacement, referrer, UTM parameters, and debug mode.
   // Uses img beacon then `navigator.sendBeacon` if available, otherwise falls back to `fetch`.
   private async send(data: Event): Promise<void> {
@@ -94,27 +107,25 @@ class AnalyticsTracker {
     // Prepare the event payload
     const stringifiedBody = JSON.stringify(body);
     // Encode for safe inclusion in query string using Base64
-    const payload = btoa(stringifiedBody);
+    const payloadBase64 = btoa(stringifiedBody);
 
-    // Send via image beacon
-    const img = new Image(1, 1);
+    const safeGetThreshold = 1500; // limit for query-string-containing URLs
+    const tryImageBeacon = payloadBase64.length <= safeGetThreshold;
 
-    // If loading image fails (server unavailable, blocked, etc.)
-    img.onerror = () => {
-      // First fallback: try sendBeacon
-      if (navigator.sendBeacon?.(this.config.collectorUrl, stringifiedBody)) return;
+    if (tryImageBeacon) {
+      // Send via image beacon
+      const img = new Image(1, 1);
 
-      // Second fallback: use fetch() with keepalive
-      fetch(this.config.collectorUrl, {
-        method: "POST",
-        body: stringifiedBody,
-        headers: { "Content-Type": "application/json" },
-        keepalive: true
-      }).catch((err: Error) => console.error("[onedollarstats] fetch() failed:", err.message));
-    };
+      // If loading image fails (server unavailable, blocked, etc.)
+      img.onerror = () => {
+        this.sendWithBeaconOrFetch(stringifiedBody).catch((err) => console.error("[onedollarstats] fallback failed:", err?.message || err));
+      };
 
-    // Primary attempt: send data via image beacon (GET request with query string)
-    img.src = `${this.config.collectorUrl}?data=${payload}`;
+      // Primary attempt: send data via image beacon (GET request with query string)
+      img.src = `${this.config.collectorUrl}?data=${payloadBase64}`;
+    }
+
+    await this.sendWithBeaconOrFetch(stringifiedBody);
   }
 
   // Prevents duplicate pageviews and respects include/exclude page rules. Automatically parses UTM parameters from URL.
