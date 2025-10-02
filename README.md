@@ -32,13 +32,13 @@ import { configure } from "onedollarstats";
 configure({
   collectorUrl: "https://collector.onedollarstats.com/events",
   autocollect: true, // automatically tracks pageviews & clicks
-  hashRouting: true, // track SPA hash route changes
+  hashRouting: true // track SPA hash route changes
 });
 ```
 
 #### Track Pageviews Manually
 
-По дефолут все пейджвью трекаются автоматически. Если вы хотите делать это вручную, и ставите `autocollect: false` тогда вы можете использовать функцию `view` для отправки пейдж вью 
+По дефолут все пейджвью трекаются автоматически. Если вы хотите делать это вручную, и ставите `autocollect: false` тогда вы можете использовать функцию `view` для отправки пейдж вью
 
 ```ts
 import { view } from "onedollarstats";
@@ -89,6 +89,7 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 >
 > - Manual calls of `view` or `event` **ignore** `excludePages`/`includePages`.
 > - By default, events from `localhost` are ignored. Use the `trackLocalhostAs` option to simulate a hostname for local development.
+
 ---
 
 #### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)` sends a page view event.
@@ -110,14 +111,12 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 
 ---
 
-
-
 ## Click Autocapture
 
 You can automatically capture clicks on elements by adding special HTML attributes:
 
-- `data-s:event`/`data-s-event` – sets the event name.
-- `data-s:event-path`/`data-s-event-path` – sets the path representing the page where the event occurred (optional).
-- `data-s:event-props`/`data-s-event-props` – sets properties that will be sent with the event (optional).
+- `data-s-event` – sets the event name.
+- `data-s-event-path` – sets the path representing the page where the event occurred (optional).
+- `data-s-event-props` – sets properties that will be sent with the event (optional).
 
 For full details, see the [Click Autocapture documentation](https://docs.onedollarstats.com/send-events).

@@ -1,4 +1,4 @@
-import type { AnalyticsConfig, BaseProps, BodyToSend, Event, EventTypes, ViewArguments } from "./types";
+import type { AnalyticsConfig, BaseProps, BodyToSend, Event, ViewArguments } from "./types";
 import { getEnvironment, isClient } from "./utils/environment";
 import { parseUtmParams } from "./utils/parse-utm-params";
 import { parseProps } from "./utils/props-parser";
@@ -17,9 +17,6 @@ class AnalyticsTracker {
   private static instance: AnalyticsTracker | null = null;
 
   private autocollectSetupDone = false;
-  private listeners: Array<{ type: EventTypes; listener: EventListener }> = [];
-  private originalPushState: History["pushState"] | null = null;
-
   private config: Required<AnalyticsConfig>;
   private lastPage: string | null = null;
 
@@ -152,9 +149,9 @@ class AnalyticsTracker {
    *
    * @param eventName Name of the event to track.
    * @param pathOrProps Optional path string or props object.
-   * @param extraProps Optional props object if path string is provided.
+   * @param props Optional props object if path string is provided.
    */
-  public async event(eventName: string, pathOrProps?: string | BaseProps, extraProps?: BaseProps) {
+  public async event(eventName: string, pathOrProps?: string | BaseProps, props?: BaseProps) {
     if (!isClient()) return;
 
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
@@ -163,7 +160,7 @@ class AnalyticsTracker {
     const args: ViewArguments = {};
     if (typeof pathOrProps === "string") {
       args.path = pathOrProps;
-      args.props = extraProps;
+      args.props = props;
     } else if (typeof pathOrProps === "object") args.props = pathOrProps;
 
     this.send({ type: eventName, ...args });
@@ -199,8 +196,6 @@ class AnalyticsTracker {
    *  - hashchange
    *  - click autocapture for elements annotated with `data-s:event` & `data-s-event`
    *
-   * **Broadcast** listeners captured events to all registered instances.
-   * Each instance decides whether to act on per-instance config.
    */
   private setupAutocollect() {
     if (!isClient() || this.autocollectSetupDone) return;
@@ -213,11 +208,9 @@ class AnalyticsTracker {
       if (document.visibilityState === "visible") handlePageView();
     };
     document.addEventListener("visibilitychange", onVisibility);
-    this.listeners.push({ type: "visibilitychange", listener: onVisibility });
 
     // pushState
-    this.originalPushState = history.pushState;
-    const origPush = this.originalPushState.bind(history);
+    const origPush = history.pushState.bind(history);
     history.pushState = (...args) => {
       origPush(...args);
       requestAnimationFrame(() => {
@@ -227,11 +220,9 @@ class AnalyticsTracker {
 
     // popstate
     window.addEventListener("popstate", handlePageView);
-    this.listeners.push({ type: "popstate", listener: handlePageView });
 
     // hashchange
     window.addEventListener("hashchange", handlePageView);
-    this.listeners.push({ type: "hashchange", listener: handlePageView });
 
     // click autocapture
     const onClick: EventListener = (ev: Event) => {
@@ -271,33 +262,9 @@ class AnalyticsTracker {
     };
 
     document.addEventListener("click", onClick);
-    this.listeners.push({ type: "click", listener: onClick });
 
     // Fire initial pageview if already visible
     if (document.visibilityState === "visible") handlePageView();
-  }
-
-  /**
-   * Cleanup listeners and restore history.pushState.
-   */
-  public cleanup() {
-    if (!this.autocollectSetupDone) return;
-
-    this.listeners.forEach(({ type, listener }) => {
-      if (type === "click" || type === "visibilitychange") document.removeEventListener(type, listener);
-      else window.removeEventListener(type, listener);
-    });
-
-    this.listeners = [];
-
-    // Restore original history.pushState to avoid leaving wrapped function.
-    if (this.originalPushState) {
-      history.pushState = this.originalPushState;
-      this.originalPushState = null;
-    }
-
-    this.autocollectSetupDone = false;
-    this.lastPage = null;
   }
 }
 
@@ -305,17 +272,12 @@ export const configure = (userConfig: AnalyticsConfig = {}) => {
   AnalyticsTracker.getInstance(userConfig);
 };
 
-export const event = async (eventName: string, pathOrProps?: string | BaseProps, extraProps?: BaseProps) => {
+export const event = async (eventName: string, pathOrProps?: string | BaseProps, props?: BaseProps) => {
   const instance = AnalyticsTracker.getInstance();
-  await instance.event(eventName, pathOrProps, extraProps);
+  await instance.event(eventName, pathOrProps, props);
 };
 
 export const view = async (pathOrProps?: string | BaseProps, props?: BaseProps) => {
   const instance = AnalyticsTracker.getInstance();
   await instance.view(pathOrProps, props);
-};
-
-export const cleanupAutocollect = () => {
-  const instance = AnalyticsTracker.getInstance();
-  instance.cleanup();
 };

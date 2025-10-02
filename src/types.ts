@@ -1,8 +1,6 @@
 type UtmParams = Record<string, string | string[]>;
 export type BaseProps = Record<string, string>;
 
-export type EventTypes = "visibilitychange" | "popstate" | "hashchange" | "click";
-
 // Short notations
 // u: url
 // t: type
@@ -11,7 +9,7 @@ export type EventTypes = "visibilitychange" | "popstate" | "hashchange" | "click
 // p: properties
 // e: events
 // qs: utm params
-export type MinimizedEvent = {
+type MinimizedEvent = {
   t: string;
   h?: boolean;
   r?: string;
