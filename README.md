@@ -9,7 +9,7 @@ A lightweight, zero-dependency analytics tracker for front-end apps. OneDollarSt
 
 - Automatic pageview tracking (supports browser navigation, visibility changes, and hash routing)
 - UTM parameter extraction for campaigns
-- Click autocapture for elements with `data-s:event` attributes
+- Click autocapture for elements with `data-s:event` or `data-s-event` attributes
 - Fallbacks for sending data: Image beacon → `sendBeacon` → `fetch`
 - Zero dependencies, easy to integrate
 
@@ -19,60 +19,71 @@ A lightweight, zero-dependency analytics tracker for front-end apps. OneDollarSt
 pnpm install onedollarstats
 ```
 
-## Usage Example
+## Getting Started
 
-### Setup Analytics
+### Configure analytics
 
-> ⚠️ Only initialize **once** in your app (usually at app entrypoint).
-> Config is applied on the **first initialization only**.
+> ⚠️ Important: The tracker configuration is applied only once. Call configure() once in your app (usually at the entrypoint).
+> Calling view() or event() before configure() will automatically initialize the tracker with the default configuration.
 
 ```ts
-import { Analytics } from "onedollarstats";
+import { configure } from "onedollarstats";
 
-// Initialize tracker
-const tracker = Analytics({
+// Configure analytics
+configure({
   collectorUrl: "https://collector.onedollarstats.com/events",
   autocollect: true, // automatically track pageviews & clicks
   hashRouting: true // track SPA hash route changes
 });
 ```
 
-All subsequent calls will return the same tracker instance. You can access
-this instance anywhere in your app by calling Analytics() again. This
-allows you to use the tracker methods (event, view, etc.) in
-different modules.
-
-#### Manual Track Pageviews
+#### Track Pageviews
 
 ```ts
-// Manual pageview
-tracker.view("/homepage");
+import { view } from "onedollarstats";
 
-// Pageview with additional properties
-tracker.view("/checkout", { step: 2, plan: "pro" });
+// Simple pageview
+view("/homepage");
+
+// Pageview with extra properties
+view("/checkout", { step: 2, plan: "pro" });
 ```
 
-#### Manual Track Custom Events
+#### Track Custom Events
+
+Custom events can be tracked in multiple ways:
 
 ```ts
-// Simple event
-tracker.event("ButtonClicked");
+import { event } from "onedollarstats";
 
-// Event with path
-tracker.event("SignupStarted", "/signup");
+// Simple event
+event("ButtonClicked");
+
+// Event with a path
+event("SignupStarted", "/signup");
 
 // Event with properties
-tracker.event("Purchase", { amount: 49, currency: "USD" });
+event("Purchase", { amount: 49, currency: "USD" });
 
 // Event with path + properties
-tracker.event("CheckoutStep", "/checkout", { step: 3 });
+event("CheckoutStep", "/checkout", { step: 3 });
 ```
 
 ## API
 
-The tracker exposes three main methods:
+**Onedollarstats export four main methods:**
 
-### `tracker.view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)`
+### `configure(config?: AnalyticsConfig)`
+
+Initialize tracker with your configuration.
+
+**Parameters:**
+
+- `config` – Optional configuration object to customize behavior (collector URL, autocollect, hashRouting, etc.).
+
+---
+
+### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)`
 
 Record a page view.
 
@@ -83,7 +94,7 @@ Record a page view.
 
 ---
 
-### `tracker.event(eventName: string, pathOrProps?: string |  Record<string, string>, extraProps?:  Record<string, string>)`
+### `event(eventName: string, pathOrProps?: string |  Record<string, string>, extraProps?:  Record<string, string>)`
 
 Track a custom event.
 
@@ -95,7 +106,7 @@ Track a custom event.
 
 ---
 
-### `tracker.cleanup()`
+### `cleanup`
 
 Removes all event listeners and restores original `history.pushState`.
 Use when unmounting apps or cleaning up SPA components.
@@ -113,15 +124,15 @@ Use when unmounting apps or cleaning up SPA components.
 
 > **Notes:**
 >
-> - Manual calls to `tracker.view()` or `tracker.event()` **ignore** `excludePages`/`includePages`.
+> - Manual calls to `view` or `event` **ignore** `excludePages`/`includePages`.
 > - By default, events from `localhost` are ignored. Use the `trackLocalhostAs` option to simulate a hostname for local testing.
 
 ## Click Autocapture
 
 You can automatically capture clicks on elements by adding special HTML attributes:
 
-- `data-s:event` – sets the event name.
-- `data-s:event-path` – sets the path representing the page where the event occurred (optional).
-- `data-s:event-props` – sets properties that will be sent with the event (optional).
+- `data-s:event`/`data-s-event` – sets the event name.
+- `data-s:event-path`/`data-s-event-path` – sets the path representing the page where the event occurred (optional).
+- `data-s:event-props`/`data-s-event-props` – sets properties that will be sent with the event (optional).
 
 For full details, see the [Click Autocapture documentation](https://docs.onedollarstats.com/send-events).

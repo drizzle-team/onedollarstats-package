@@ -301,12 +301,21 @@ class AnalyticsTracker {
   }
 }
 
-export const Analytics = (userConfig: AnalyticsConfig = {}) => {
-  const instance = AnalyticsTracker.getInstance(userConfig);
+export const configure = (userConfig: AnalyticsConfig = {}) => {
+  AnalyticsTracker.getInstance(userConfig);
+};
 
-  return {
-    event: instance.event.bind(instance),
-    view: instance.view.bind(instance),
-    cleanup: instance.cleanup.bind(instance)
-  };
+export const event = async (eventName: string, pathOrProps?: string | BaseProps, extraProps?: BaseProps) => {
+  const instance = AnalyticsTracker.getInstance();
+  await instance.event(eventName, pathOrProps, extraProps);
+};
+
+export const view = async (pathOrProps?: string | BaseProps, props?: BaseProps) => {
+  const instance = AnalyticsTracker.getInstance();
+  await instance.view(pathOrProps, props);
+};
+
+export const cleanupAutocollect = () => {
+  const instance = AnalyticsTracker.getInstance();
+  instance.cleanup();
 };
