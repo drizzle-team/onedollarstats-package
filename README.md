@@ -7,10 +7,10 @@ A lightweight, zero-dependency analytics tracker for client apps. OneDollarStats
 
 ## Features
 
-- Automatic pageview tracking (supports client/server side navigation, and hash routing)
-- Automatically sends UTM parameters
-- Automatically sends events on click on elements with `data-s-event` attributes
-- Zero dependencies, easy to integrate
+-Automatic pageview tracking (supports client/server side navigation and hash routing)
+-Automatic UTM parameter collection
+-Automatic event tracking on clicks of elements with data-s-event attributes
+-Zero dependencies, easy to integrate
 
 ## Installation
 
@@ -22,7 +22,7 @@ npm i onedollarstats
 
 ### Configure analytics
 
-> ⚠️ Initialize the analytics on every page for static sites, and to the root layout(app entrypoint) in spa apps.
+> ⚠️ Initialize analytics on every page for static sites, or at the root layout (app entrypoint) in SPA apps.
 > Calling `view` or `event` before `configure` will automatically initialize the tracker with the default configuration.
 
 ```ts
@@ -38,7 +38,7 @@ configure({
 
 #### Track Pageviews Manually
 
-По дефолут все пейджвью трекаются автоматически. Если вы хотите делать это вручную, и ставите `autocollect: false` тогда вы можете использовать функцию `view` для отправки пейдж вью
+By default, pageviews are tracked automatically. If you want to track them manually (for example, with autocollect: false), you can use the `view` function:
 
 ```ts
 import { view } from "onedollarstats";
@@ -50,9 +50,9 @@ view("/homepage");
 view("/checkout", { step: 2, plan: "pro" });
 ```
 
-#### Track Custom Events
+#### Track Custom Events Manually
 
-Аргументы функции `event` могут варироваться в зависимости от типа данных
+The `event` function can accept different types of arguments depending on your needs:
 
 ```ts
 import { event } from "onedollarstats";
@@ -72,7 +72,7 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 
 ## API
 
-#### `configure(config?: AnalyticsConfig)` initializes tracker with your configuration.
+#### `configure(config?: AnalyticsConfig)` initializes the tracker with your configuration.
 
 **Config Options:**
 
@@ -92,12 +92,12 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 
 ---
 
-#### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)` sends a page view event.
+#### `view(pathOrProps?: string | Record<string, string>, props?:  Record<string, string>)` sends a pageview event.
 
 **Parameters:**
 
-- `pathOrProps` – Optional, если строка то это путь, если обьект то кастомные пропсы
-- `props` – Optional, properties if the first argument is a path string
+- `pathOrProps` – Optional, **string** represents the path, **object** represents custom properties.
+- `props` – Optional, properties if the first argument is a path string.
 
 ---
 
@@ -105,18 +105,18 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 
 **Parameters:**
 
-- `eventName` – Event name
-- `pathOrProps` – Optional, если строка то это путь, если обьект то кастомные пропсы
-- `props` – Optional, properties if the second argument is a path string
+- `eventName` – Name of the event.
+- `pathOrProps` – Optional, **string** represents the path, **object** represents custom properties.
+- `props` – Optional, properties if the second argument is a path string.
 
 ---
 
 ## Click Autocapture
 
-You can automatically capture clicks on elements by adding special HTML attributes:
+Automatically capture clicks on elements using these HTML attributes:
 
-- `data-s-event` – sets the event name.
-- `data-s-event-path` – sets the path representing the page where the event occurred (optional).
-- `data-s-event-props` – sets properties that will be sent with the event (optional).
+- `data-s-event`– Name of the event
+- `data-s-event-path` Optional, the path representing the page where the event occurred
+- `data-s-event-props` – Optional, properties to send with the event
 
 For full details, see the [Click Autocapture documentation](https://docs.onedollarstats.com/send-events).
