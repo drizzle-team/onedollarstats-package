@@ -186,7 +186,7 @@ class AnalyticsTracker {
    *  - history.pushState
    *  - popstate
    *  - hashchange
-   *  - click autocapture for elements annotated with `data-s:event`
+   *  - click autocapture for elements annotated with `data-s:event` & `data-s-event`
    *
    * **Broadcast** listeners captured events to all registered instances.
    * Each instance decides whether to act on per-instance config.
@@ -227,18 +227,36 @@ class AnalyticsTracker {
       const clickEvent = ev as MouseEvent;
       if (clickEvent.type === "auxclick" && clickEvent.button !== 1) return;
 
-      const target = clickEvent.target as Element;
-      const eventName = target.getAttribute("data-s:event");
-      if (!eventName) return;
+      const target = clickEvent.target as Element | null;
+      if (!target) return;
 
-      const propsAttr = target.getAttribute("data-s:event-props");
-      const props = propsAttr ? parseProps(propsAttr) : undefined;
-      const path = target.getAttribute("data-s:event-path") || undefined;
+      // Check if inside <a> or <button>
+      const insideInteractive = !!target.closest("a, button");
 
-      // Skip page if checkBlock is true and the path should be excluded
-      if ((path && !shouldTrackPath(path, this.config)) || !shouldTrackPath(location.pathname, this.config)) return;
+      let el: Element | null = target;
+      let depth = 0;
 
-      this.event(eventName, path ?? props, props);
+      while (el) {
+        const eventName = el.getAttribute("data-s:event") ?? el.getAttribute("data-s-event");
+        if (eventName) {
+          const propsAttr = el.getAttribute("data-s:event-props") ?? el.getAttribute("data-s-event-props");
+          const props = propsAttr ? parseProps(propsAttr) : undefined;
+          const path = el.getAttribute("data-s:event-path") || el.getAttribute("data-s-event-path") || undefined;
+
+          if ((path && !shouldTrackPath(path, this.config)) || !shouldTrackPath(location.pathname, this.config)) {
+            return;
+          }
+
+          this.event(eventName, path ?? props, props);
+          return;
+        }
+
+        el = el.parentElement;
+        depth++;
+
+        // If not in <a>/<button>, stop after 3 levels
+        if (!insideInteractive && depth >= 3) break;
+      }
     };
 
     document.addEventListener("click", onClick);
