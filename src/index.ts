@@ -115,9 +115,7 @@ class AnalyticsTracker {
       const img = new Image(1, 1);
 
       // If loading image fails (server unavailable, blocked, etc.)
-      img.onerror = () => {
-        this.sendWithBeaconOrFetch(stringifiedBody).catch((err) => console.error("[onedollarstats] fallback failed:", err?.message || err));
-      };
+      img.onerror = () => this.sendWithBeaconOrFetch(stringifiedBody);
 
       // Primary attempt: send data via image beacon (GET request with query string)
       img.src = `${this.config.collectorUrl}?data=${payloadBase64}`;
