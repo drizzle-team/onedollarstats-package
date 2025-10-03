@@ -7,10 +7,10 @@ A lightweight, zero-dependency analytics tracker for client apps. OneDollarStats
 
 ## Features
 
--Automatic pageview tracking (supports client/server side navigation and hash routing)
--Automatic UTM parameter collection
--Automatic event tracking on clicks of elements with data-s-event attributes
--Zero dependencies, easy to integrate
+- Automatic pageview tracking (supports client/server side navigation and hash routing)
+- Automatic UTM parameter collection
+- Automatic event tracking on clicks of elements with data-s-event attributes
+- Zero dependencies, easy to integrate
 
 ## Installation
 
