@@ -36,7 +36,11 @@ configure({
 });
 ```
 
-#### Track Pageviews Manually
+### Manual Tracking
+
+> **Note:** Any path or properties you pass to `view` or `event` take **priority** over values found on the page (like `data-s-path`, `data-s:view-props`, or meta tags).
+
+**Track Pageviews**
 
 By default, pageviews are tracked automatically. If you want to track them manually (for example, with autocollect: false), you can use the `view` function:
 
@@ -50,7 +54,7 @@ view("/homepage");
 view("/checkout", { step: 2, plan: "pro" });
 ```
 
-#### Track Custom Events Manually
+**Track Custom Events**
 
 The `event` function can accept different types of arguments depending on your needs:
 
