@@ -2,6 +2,7 @@ import type { AnalyticsConfig, BaseProps, BodyToSend, Event, ViewArguments } fro
 import { getEnvironment, isClient } from "./utils/environment";
 import { parseUtmParams } from "./utils/parse-utm-params";
 import { parseProps } from "./utils/props-parser";
+import { resolvePath } from "./utils/resolve-path";
 import { shouldTrackPath } from "./utils/should-track";
 
 const defaultConfig: Required<AnalyticsConfig> = {
@@ -129,18 +130,34 @@ class AnalyticsTracker {
   private trackPageView({ path, props }: ViewArguments, checkBlock: boolean = false) {
     if (!isClient()) return;
 
-    const cleanPath = path || location.pathname;
+    const viewPath = resolvePath(path);
+
+    const viewProps =
+      props ||
+      (() => {
+        const newProps = {};
+        const elements = document.querySelectorAll("[data-s\\:view-props], [data-s-view-props]");
+
+        for (const el of Array.from(elements)) {
+          const propsString = el.getAttribute("data-s-view-props") || el.getAttribute("data-s:view-props");
+          if (!propsString) continue;
+          const parsedProps = parseProps(propsString);
+          Object.assign(newProps, parsedProps);
+        }
+
+        return Object.keys(newProps).length ? newProps : undefined;
+      })();
 
     // Skip duplicate pageviews or excluded pages
-    if (!this.config.hashRouting && this.lastPage === cleanPath) return;
+    if (!this.config.hashRouting && this.lastPage === viewPath) return;
 
     // Skip page if checkBlock is true and the path should be excluded
-    if (checkBlock && !shouldTrackPath(cleanPath, this.config)) return;
+    if (checkBlock && !shouldTrackPath(viewPath, this.config)) return;
 
-    this.lastPage = cleanPath;
+    this.lastPage = viewPath;
 
     const utm = parseUtmParams(new URLSearchParams(location.search));
-    this.send({ type: "PageView", path: cleanPath, props, utm });
+    this.send({ type: "PageView", path: viewPath, props: viewProps, utm });
   }
 
   /**
@@ -159,7 +176,8 @@ class AnalyticsTracker {
 
     const args: ViewArguments = {};
     if (typeof pathOrProps === "string") {
-      args.path = pathOrProps;
+      args.path = resolvePath(pathOrProps);
+
       args.props = props;
     } else if (typeof pathOrProps === "object") args.props = pathOrProps;
 
@@ -201,7 +219,7 @@ class AnalyticsTracker {
     if (!isClient() || this.autocollectSetupDone) return;
     this.autocollectSetupDone = true;
 
-    const handlePageView = () => this.trackPageView({ path: location.pathname }, true);
+    const handlePageView = () => this.trackPageView({}, true);
 
     // visibilitychange
     const onVisibility = () => {
@@ -239,11 +257,11 @@ class AnalyticsTracker {
       let depth = 0;
 
       while (el) {
-        const eventName = el.getAttribute("data-s:event") ?? el.getAttribute("data-s-event");
+        const eventName = el.getAttribute("data-s-event") || el.getAttribute("data-s:event");
         if (eventName) {
-          const propsAttr = el.getAttribute("data-s:event-props") ?? el.getAttribute("data-s-event-props");
+          const propsAttr = el.getAttribute("data-s-event-props") || el.getAttribute("data-s:event-props");
           const props = propsAttr ? parseProps(propsAttr) : undefined;
-          const path = el.getAttribute("data-s:event-path") || el.getAttribute("data-s-event-path") || undefined;
+          const path = el.getAttribute("data-s-event-path") || el.getAttribute("data-s:event-path") || undefined;
 
           if ((path && !shouldTrackPath(path, this.config)) || !shouldTrackPath(location.pathname, this.config)) {
             return;
