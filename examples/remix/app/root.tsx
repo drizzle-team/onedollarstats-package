@@ -1,28 +1,24 @@
-import { Links, LiveReload, Meta, Outlet, Scripts } from "@remix-run/react";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
 import { configure } from "onedollarstats";
 import { useEffect } from "react";
 
-export default function App() {
+export default function Root() {
   useEffect(() => {
     configure({ trackLocalhostAs: "example.com" });
-    console.log(22);
   }, []);
-
   return (
-    <html>
+    <html lang='en'>
       <head>
         <link
-          rel='icon'
-          href='data:image/x-icon;base64,AA'
-        />
-        <Meta />
+          href='/app/index.css'
+          rel='stylesheet'
+        ></link>
         <Links />
+        <Meta />
       </head>
       <body>
-        <LiveReload />
-        <h1>Hello world!</h1>
         <Outlet />
-
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
