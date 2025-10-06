@@ -1,0 +1,82 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  color: #1f2937;
+}
+
+:host-context(.dark) .app-container {
+  background: linear-gradient(to bottom, #111827, #030712);
+  color: #f3f4f6;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1.5rem; /* py-20 px-6 */
+  gap: 1.5rem; /* space-y-6 */
+}
+
+.title {
+  font-size: 2.25rem; /* text-4xl */
+  font-weight: 700; /* font-bold */
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 3rem; /* md:text-5xl */
+  }
+}
+
+/* Описание */
+.description {
+  font-size: 1.125rem; /* text-lg */
+  max-width: 28rem; /* max-w-md */
+  color: #4b5563; /* text-gray-600 */
+}
+
+:host-context(.dark) .description {
+  color: #9ca3af; /* dark:text-gray-400 */
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* gap-4 */
+}
+
+@media (min-width: 768px) {
+  .button-group {
+    flex-direction: row;
+  }
+}
+
+.btn {
+  padding: 0.75rem 1.25rem; /* py-3 px-5 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-blue {
+  background-color: #2563eb; /* bg-blue-600 */
+}
+
+.btn-blue:hover {
+  background-color: #1d4ed8; /* hover:bg-blue-700 */
+}
+.btn-green {
+  background-color: #16a34a; /* bg-green-600 */
+}
+
+.btn-green:hover {
+  background-color: #15803d; /* hover:bg-green-700 */
+}
