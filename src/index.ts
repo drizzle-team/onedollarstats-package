@@ -119,9 +119,7 @@ class AnalyticsTracker {
 
       // Primary attempt: send data via image beacon (GET request with query string)
       img.src = `${this.config.collectorUrl}?data=${payloadBase64}`;
-    }
-
-    await this.sendWithBeaconOrFetch(stringifiedBody);
+    } else await this.sendWithBeaconOrFetch(stringifiedBody);
   }
 
   // Prevents duplicate pageviews and respects include/exclude page rules. Automatically parses UTM parameters from URL.
