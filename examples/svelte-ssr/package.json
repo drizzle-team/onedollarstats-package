@@ -21,6 +21,8 @@
 		"vite": "^7.1.7"
 	},
 	"dependencies": {
-		"onedollarstats": "^0.0.4"
+		"@tailwindcss/vite": "^4.1.14",
+		"onedollarstats": "^0.0.4",
+		"tailwindcss": "^4.1.14"
 	}
 }

@@ -14,14 +14,14 @@
 
     <div class="flex flex-col md:flex-row gap-4">
       <a
-        href="/page-2"
+        href="/"
         class="px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
       >
-        Go to /page-2
+        Go to /
       </a>
 
       <button
-        onclick={() => event("click-2", "/custom-path-2", { label: "Track Event 2" })}
+        onclick={() => event("click", "/custom-path", { label: "Track Event" })}
         class="px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition"
       >
         Track Event
