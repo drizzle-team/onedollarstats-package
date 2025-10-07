@@ -22,10 +22,8 @@ class AnalyticsTracker {
   private lastPage: string | null = null;
 
   public static getInstance(userConfig: AnalyticsConfig = {}): AnalyticsTracker {
-    if (!isClient()) {
-      console.warn("[onedollarstats] Running in non-browser environment. Returning no-op instance.");
-      return new AnalyticsTracker(userConfig); // Fresh no-op instance for SSR
-    }
+    // Fresh no-op instance for SSR
+    if (!isClient()) return new AnalyticsTracker(userConfig);
 
     if (!AnalyticsTracker.instance) {
       AnalyticsTracker.instance = new AnalyticsTracker(userConfig);
