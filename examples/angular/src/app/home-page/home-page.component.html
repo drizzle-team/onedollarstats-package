@@ -1,0 +1,16 @@
+<div class="app-container">
+  <main class="main-content">
+    <h1 class="title">OneDollarStats Example</h1>
+    <p class="description">
+      Open Network tab in DevTools, filter "All", and click the buttons below to see events being sent.
+    </p>
+    <div class="button-group">
+      <a routerLink="/page-2" class="btn btn-blue">
+        Go to /page-2
+      </a>
+      <button (click)="trackEvent()" class="btn btn-green">
+        Track Event
+      </button>
+    </div>
+  </main>
+</div>

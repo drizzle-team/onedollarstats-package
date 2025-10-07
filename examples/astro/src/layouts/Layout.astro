@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro Basics</title>
+    <script>
+      import { configure } from "onedollarstats";
+
+      if (typeof window !== "undefined") {
+        configure({
+          trackLocalhostAs: "test.com",
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
