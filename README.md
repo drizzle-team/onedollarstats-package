@@ -1,16 +1,18 @@
-# OneDollarStats
 
-[![npm version](https://img.shields.io/npm/v/onedollarstats)](https://www.npmjs.com/package/onedollarstats)  
-[![Website](https://img.shields.io/badge/site-onedollarstats.com-blue)](https://onedollarstats.com/home)
 
-A lightweight, zero-dependency analytics tracker for client apps. OneDollarStats automatically collects pageviews, UTM parameters, and custom events with minimal setup.
+<h1 align="center">
+  OneDollarStats
+</h1>
 
-## Features
+<div align="center">
+  <h3>$1.00/month web analytics 🚀</h3>
+  <a href="https://onedollarstats.com">Website</a>  •
+  <a href="https://docs.onedollarstats.com/get-started">Documentation</a> •
+  <a href="https://discord.gg/55EjXsFUuf">Discord</a>
+</div>
 
-- Automatic pageview tracking (supports client/server side navigation and hash routing)
-- Automatic UTM parameter collection
-- Automatic event tracking on clicks of elements with data-s-event attributes
-- Zero dependencies, easy to integrate
+### What's onedollarstats package?
+**OneDollarStats** is a lightweight, zero-dependency analytics tracker for client applications that automatically tracks pageviews, UTM parameters, and custom events with minimal setup. It supports client-side, server-side, and hash-based navigation, collects UTM parameters automatically, tracks clicks on elements with `data-s-event` attributes, and integrates effortlessly without any external dependencies.
 
 ## Installation
 
@@ -113,9 +115,16 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 - `pathOrProps` – Optional, **string** represents the path, **object** represents custom properties.
 - `props` – Optional, properties if the second argument is a path string.
 
----
+## Autocapture
+**Page view events**
 
-## Click Autocapture
+List of attributes for tags that allow modifying the sent page view:
+
+- `data-s-path` – Optional. Specifies the path representing the page where the event occurred. This attribute should be set on the `<body>` tag.
+
+- `data-s-view-props` – Optional. Defines additional properties to include with the page view event. All properties from elements on the page with this attribute will be collected and sent together.
+
+**Click events**
 
 Automatically capture clicks on elements using these HTML attributes:
 
@@ -123,4 +132,4 @@ Automatically capture clicks on elements using these HTML attributes:
 - `data-s-event-path` Optional, the path representing the page where the event occurred
 - `data-s-event-props` – Optional, properties to send with the event
 
-For full details, see the [Click Autocapture documentation](https://docs.onedollarstats.com/send-events).
+For full details, see the [Documentation](https://docs.onedollarstats.com).
