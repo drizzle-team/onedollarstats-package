@@ -37,6 +37,13 @@ class AnalyticsTracker {
     // Skip setup in non-client environments
     if (!isClient()) return;
 
+    const { isLocalhost } = getEnvironment();
+
+    // Log connection only if on localhost and tracking is configured
+    if (isLocalhost && this.config.trackLocalhostAs) {
+      console.log(`[onedollarstats]\nOneDollarStats successfully connected! Tracking your localhost as ${this.config.trackLocalhostAs}`);
+    }
+
     // Auto-start autocollect
     if (this.config.autocollect) this.setupAutocollect();
   }
@@ -98,7 +105,16 @@ class AnalyticsTracker {
     };
 
     if (data.utm && Object.keys(data.utm).length > 0) body.qs = data.utm;
-    if (isDebug) body.debug = true;
+    if (isDebug) {
+      body.debug = true;
+      let logMessage = `[onedollarstats]\nEvent name: ${data.type}\nEvent collected from: ${cleanUrl}`;
+      if (data.props && Object.keys(data.props).length > 0) logMessage += `\nProps: ${JSON.stringify(data.props, null, 2)}`;
+      if (referrer) logMessage += `\nReferrer: ${referrer}`;
+      if (this.config.hashRouting) logMessage += `\nHashRouting: ${this.config.hashRouting}`;
+      if (data.utm && Object.keys(data.utm).length > 0) logMessage += `\nUTM: ${data.utm}`;
+
+      console.log(logMessage);
+    }
 
     // Prepare the event payload
     const stringifiedBody = JSON.stringify(body);
