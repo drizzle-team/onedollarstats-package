@@ -132,4 +132,4 @@ Automatically capture clicks on elements using these HTML attributes:
 - `data-s-event-path` Optional, the path representing the page where the event occurred
 - `data-s-event-props` – Optional, properties to send with the event
 
-For full details, see the [Documentation](https://docs.onedollarstats.com).
+See full onedollarstats [documentation](https://docs.onedollarstats.com).
