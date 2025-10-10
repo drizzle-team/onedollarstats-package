@@ -40,7 +40,7 @@ configure({
 
 ### Manual Tracking
 
-> **Note:** Any path or properties you pass to `view` or `event` take **priority** over values found on the page (like `data-s-path`, `data-s:view-props`, or meta tags).
+> **Note:** Any path or properties you pass to `view` or `event` take **priority** over values found on the page (like `data-s-path`, `data-s-view-props`, or meta tags).
 
 **Track Pageviews**
 
