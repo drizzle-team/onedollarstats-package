@@ -67,13 +67,20 @@ class AnalyticsTracker {
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
     if ((isLocalhost && !this.config.trackLocalhostAs) || isHeadlessBrowser) return;
 
-    const urlToSend = new URL(location.href);
+    let urlToSend: URL = new URL(location.href);
 
     // Determine debug mode and handle localhost replacement
     let isDebug: boolean = false;
-    if (isLocalhost && this.config.trackLocalhostAs && urlToSend.hostname !== this.config.trackLocalhostAs) {
-      isDebug = true;
-      urlToSend.hostname = this.config.trackLocalhostAs;
+    if (isLocalhost && this.config.trackLocalhostAs) {
+      try {
+        const debugUrl = new URL(`https://${this.config.trackLocalhostAs}${urlToSend.pathname}`);
+        if (urlToSend.hostname !== debugUrl.hostname) {
+          isDebug = true;
+          urlToSend = debugUrl;
+        }
+      } catch {
+        return;
+      }
     }
 
     // Clean query string unless UTM is explicitly provided
