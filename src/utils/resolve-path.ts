@@ -3,8 +3,7 @@ export const resolvePath = (pathOrProps?: string): string => {
 
   const sources = [
     { value: document.body?.getAttribute("data-s-path"), name: "data-s-path" },
-    { value: document.body?.getAttribute("data-s:path"), name: "data-s:path" },
-    { value: document.querySelector('meta[name="stonks-path"]')?.getAttribute("content"), name: "meta[name='stonks-path']" }
+    { value: document.body?.getAttribute("data-s:path"), name: "data-s:path" }
   ];
 
   // Only keep sources that actually exist
