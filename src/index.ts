@@ -1,11 +1,12 @@
 import type { AnalyticsConfig, BaseProps, BodyToSend, Event, ViewArguments } from "./types";
+import { createDebugModal } from "./utils/create-modal";
 import { getEnvironment, isClient } from "./utils/environment";
 import { parseUtmParams } from "./utils/parse-utm-params";
 import { parseProps } from "./utils/props-parser";
 import { resolvePath } from "./utils/resolve-path";
 import { shouldTrackPath } from "./utils/should-track";
 
-const defaultConfig: Required<AnalyticsConfig> = {
+export const defaultConfig: Required<AnalyticsConfig> = {
   trackLocalhostAs: null,
   collectorUrl: "https://collector.onedollarstats.com/events",
   hashRouting: false,
@@ -20,6 +21,7 @@ class AnalyticsTracker {
   private autocollectSetupDone = false;
   private config: Required<AnalyticsConfig>;
   private lastPage: string | null = null;
+  private modalLog: (message: string, success: boolean) => void = () => {};
 
   public static getInstance(userConfig: AnalyticsConfig = {}): AnalyticsTracker {
     // Fresh no-op instance for SSR
@@ -42,15 +44,19 @@ class AnalyticsTracker {
     // Log connection only if on localhost and tracking is configured
     if (isLocalhost && this.config.trackLocalhostAs) {
       console.log(`[onedollarstats]\nOneDollarStats successfully connected! Tracking your localhost as ${this.config.trackLocalhostAs}`);
+      this.modalLog = createDebugModal(this.config.trackLocalhostAs, this.config.collectorUrl);
     }
 
     // Auto-start autocollect
     if (this.config.autocollect) this.setupAutocollect();
   }
 
-  private async sendWithBeaconOrFetch(stringifiedBody: string): Promise<void> {
+  private async sendWithBeaconOrFetch(stringifiedBody: string, callback: (success: boolean) => void): Promise<void> {
     // First fallback: try sendBeacon
-    if (navigator.sendBeacon?.(this.config.collectorUrl, stringifiedBody)) return;
+    if (navigator.sendBeacon?.(this.config.collectorUrl, stringifiedBody)) {
+      callback(true);
+      return;
+    }
 
     // Second fallback: use fetch() with keepalive
     fetch(this.config.collectorUrl, {
@@ -58,7 +64,12 @@ class AnalyticsTracker {
       body: stringifiedBody,
       headers: { "Content-Type": "application/json" },
       keepalive: true
-    }).catch((err: Error) => console.error("[onedollarstats] fetch() failed:", err.message));
+    })
+      .then(({ ok }) => callback(ok))
+      .catch((err: Error) => {
+        console.error("[onedollarstats] fetch() failed:", err.message);
+        callback(false);
+      });
   }
 
   // Handles localhost replacement, referrer, UTM parameters, and debug mode.
@@ -131,16 +142,19 @@ class AnalyticsTracker {
     const safeGetThreshold = 1500; // limit for query-string-containing URLs
     const tryImageBeacon = payloadBase64.length <= safeGetThreshold;
 
+    const onComplete = (success: boolean) => this.modalLog(`${data.type} ${success ? "sent" : "failed to send"}`, success);
+
     if (tryImageBeacon) {
       // Send via image beacon
       const img = new Image(1, 1);
 
+      img.onload = () => onComplete(true);
       // If loading image fails (server unavailable, blocked, etc.)
-      img.onerror = () => this.sendWithBeaconOrFetch(stringifiedBody);
+      img.onerror = () => this.sendWithBeaconOrFetch(stringifiedBody, onComplete);
 
       // Primary attempt: send data via image beacon (GET request with query string)
       img.src = `${this.config.collectorUrl}?data=${payloadBase64}`;
-    } else await this.sendWithBeaconOrFetch(stringifiedBody);
+    } else await this.sendWithBeaconOrFetch(stringifiedBody, onComplete);
   }
 
   // Prevents duplicate pageviews and respects include/exclude page rules. Automatically parses UTM parameters from URL.
