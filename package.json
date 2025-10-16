@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc --emitDeclarationOnly && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=browser --format=esm --target=es2020 --sourcemap"
+    "build": "tsc --emitDeclarationOnly && esbuild src/index.ts --bundle --outfile=dist/index.js --platform=browser --format=esm --target=es2020 --sourcemap",
+    "prepublishOnly": "pnpm build"
   },
   "files": [
     "dist"
