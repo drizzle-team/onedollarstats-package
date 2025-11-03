@@ -1,5 +1,3 @@
-
-
 <h1 align="center">
   OneDollarStats
 </h1>
@@ -12,7 +10,11 @@
 </div>
 
 ### What's onedollarstats package?
-**OneDollarStats** is a lightweight, zero-dependency analytics tracker for client applications that automatically tracks pageviews, UTM parameters, and custom events with minimal setup. It supports client-side, server-side, and hash-based navigation, collects UTM parameters automatically, tracks clicks on elements with `data-s-event` attributes, and integrates effortlessly without any external dependencies.
+
+**OneDollarStats** is a lightweight, zero-dependency analytics library for client applications that automatically tracks pageviews, UTM
+parameters, and custom events with minimal setup.
+It supports hash-based navigation, automatically collects UTM parameters, tracks clicks on elements with `data-s-event` attributes, and
+integrates effortlessly.
 
 ## Installation
 
@@ -116,6 +118,7 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 - `props` – Optional, properties if the second argument is a path string.
 
 ## Autocapture
+
 **Page view events**
 
 List of attributes for tags that allow modifying the sent page view:
