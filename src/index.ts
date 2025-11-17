@@ -136,8 +136,11 @@ class AnalyticsTracker {
 
     // Prepare the event payload
     const stringifiedBody = JSON.stringify(body);
-    // Encode for safe inclusion in query string using Base64
-    const payloadBase64 = btoa(stringifiedBody);
+
+    // Encode for safe inclusion in a query string (UTF-8 → Base64)
+    const bytes = new TextEncoder().encode(stringifiedBody); // UTF-8 → bytes
+    const bin = String.fromCharCode(...bytes); // bytes → binary string
+    const payloadBase64 = btoa(bin); // binary → Base64
 
     const safeGetThreshold = 1500; // limit for query-string-containing URLs
     const tryImageBeacon = payloadBase64.length <= safeGetThreshold;
