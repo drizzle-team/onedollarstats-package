@@ -1,4 +1,4 @@
-import { defaultConfig } from "..";
+import { defaultConfig } from "./merge-config";
 
 export const createDebugModal = (debugUrl: string, analyticsUrl: string) => {
   if (!document.getElementById("onedollatstats-modal-styles")) {

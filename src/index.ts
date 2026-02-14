@@ -1,25 +1,17 @@
-import type { AnalyticsConfig, BaseProps, BodyToSend, Event, ViewArguments } from "./types";
+import type { AnalyticsConfig, BaseProps, BodyToSend, Event, InternalAnalyticsConfig, ViewArguments } from "./types";
 import { createDebugModal } from "./utils/create-modal";
 import { getEnvironment, isClient } from "./utils/environment";
+import { mergeConfig } from "./utils/merge-config";
 import { parseUtmParams } from "./utils/parse-utm-params";
 import { parseProps } from "./utils/props-parser";
 import { resolvePath } from "./utils/resolve-path";
 import { shouldTrackPath } from "./utils/should-track";
 
-export const defaultConfig: Required<AnalyticsConfig> = {
-  trackLocalhostAs: null,
-  collectorUrl: "https://collector.onedollarstats.com/events",
-  hashRouting: false,
-  autocollect: true,
-  excludePages: [],
-  includePages: []
-};
-
 class AnalyticsTracker {
   private static instance: AnalyticsTracker | null = null;
 
   private autocollectSetupDone = false;
-  private config: Required<AnalyticsConfig>;
+  private config: InternalAnalyticsConfig;
   private lastPage: string | null = null;
   private modalLog: (message: string, success: boolean) => void = () => {};
 
@@ -34,17 +26,18 @@ class AnalyticsTracker {
   }
 
   private constructor(userConfig: AnalyticsConfig = {}) {
-    this.config = { ...defaultConfig, ...userConfig };
+    this.config = mergeConfig(userConfig);
 
     // Skip setup in non-client environments
     if (!isClient()) return;
 
     const { isLocalhost } = getEnvironment();
 
-    // Log connection only if on localhost and tracking is configured
-    if (isLocalhost && this.config.trackLocalhostAs) {
-      console.log(`[onedollarstats]\nOneDollarStats successfully connected! Tracking your localhost as ${this.config.trackLocalhostAs}`);
-      this.modalLog = createDebugModal(this.config.trackLocalhostAs, this.config.collectorUrl);
+    // Debug log on localhost
+    if (isLocalhost && this.config.devmode && this.config.hostname) {
+      console.log(`[onedollarstats]\nOneDollarStats connected! Tracking localhost as ${this.config.hostname}`);
+
+      this.modalLog = createDebugModal(this.config.hostname, this.config.collectorUrl);
     }
 
     // Auto-start autocollect
@@ -76,23 +69,9 @@ class AnalyticsTracker {
   // Uses img beacon then `navigator.sendBeacon` if available, otherwise falls back to `fetch`.
   private async send(data: Event): Promise<void> {
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
-    if ((isLocalhost && !this.config.trackLocalhostAs) || isHeadlessBrowser) return;
+    if ((isLocalhost && !this.config.devmode) || isHeadlessBrowser) return;
 
-    let urlToSend: URL = new URL(location.href);
-
-    // Determine debug mode and handle localhost replacement
-    let isDebug: boolean = false;
-    if (isLocalhost && this.config.trackLocalhostAs) {
-      try {
-        const debugUrl = new URL(`https://${this.config.trackLocalhostAs}${urlToSend.pathname}`);
-        if (urlToSend.hostname !== debugUrl.hostname) {
-          isDebug = true;
-          urlToSend = debugUrl;
-        }
-      } catch {
-        return;
-      }
-    }
+    const urlToSend = new URL(this.config.hostname ? `https://${this.config.hostname}${location.pathname}` : location.href);
 
     // Clean query string unless UTM is explicitly provided
     urlToSend.search = "";
@@ -119,12 +98,13 @@ class AnalyticsTracker {
           r: referrer,
           p: data.props
         }
-      ]
+      ],
+      debug: this.config.devmode
     };
 
     if (data.utm && Object.keys(data.utm).length > 0) body.qs = data.utm;
-    if (isDebug) {
-      body.debug = true;
+
+    if (body.debug) {
       let logMessage = `[onedollarstats]\nEvent name: ${data.type}\nEvent collected from: ${cleanUrl}`;
       if (data.props && Object.keys(data.props).length > 0) logMessage += `\nProps: ${JSON.stringify(data.props, null, 2)}`;
       if (referrer) logMessage += `\nReferrer: ${referrer}`;
@@ -206,7 +186,7 @@ class AnalyticsTracker {
     if (!isClient()) return;
 
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
-    if ((isLocalhost && !this.config.trackLocalhostAs) || isHeadlessBrowser) return;
+    if ((isLocalhost && !this.config.devmode) || isHeadlessBrowser) return;
 
     const args: ViewArguments = {};
     if (typeof pathOrProps === "string") {

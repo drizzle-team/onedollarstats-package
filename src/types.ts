@@ -35,11 +35,35 @@ export type ViewArguments = {
   props?: BaseProps;
 };
 
-export type AnalyticsConfig = {
+type BaseAnalyticsConfig = {
   collectorUrl?: string;
+
+  /**
+   * @deprecated Use `devmode` and `hostname` instead.
+   */
   trackLocalhostAs?: string | null;
+
   hashRouting?: boolean;
   autocollect?: boolean;
   excludePages?: string[];
   includePages?: string[];
+};
+
+// devmode = true → hostname REQUIRED
+type DevModeConfig = BaseAnalyticsConfig & {
+  devmode: true;
+  hostname: string;
+};
+
+// devmode = false or undefined → hostname optional
+type ProdModeConfig = BaseAnalyticsConfig & {
+  devmode?: false;
+  hostname?: string | null;
+};
+
+export type AnalyticsConfig = DevModeConfig | ProdModeConfig;
+
+export type InternalAnalyticsConfig = Required<Omit<BaseAnalyticsConfig, "trackLocalhostAs">> & {
+  devmode: boolean;
+  hostname: string | null;
 };

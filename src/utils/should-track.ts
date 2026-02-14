@@ -1,4 +1,4 @@
-import type { AnalyticsConfig } from "../types";
+import type { InternalAnalyticsConfig } from "../types";
 
 const matchesPattern = (path: string, pattern: string): boolean => {
   // Escape special regex characters except '*' which becomes '.*'
@@ -6,7 +6,7 @@ const matchesPattern = (path: string, pattern: string): boolean => {
   return new RegExp(`^${escaped}$`).test(path);
 };
 
-export const shouldTrackPath = (path: string, config: Required<AnalyticsConfig>): boolean => {
+export const shouldTrackPath = (path: string, config: InternalAnalyticsConfig): boolean => {
   // Exclude pages first
   if (config.excludePages.some((pattern) => matchesPattern(path, pattern))) return false;
   // If includePages is defined, only allow matching paths
