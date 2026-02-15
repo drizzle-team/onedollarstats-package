@@ -2,18 +2,19 @@
 import "../styles/global.css";
 ---
 
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta charset='UTF-8' />
+    <meta
+      name='viewport'
+      content='width=device-width'
+    />
     <title>Astro Basics</title>
     <script>
       import { configure } from "onedollarstats";
 
       if (typeof window !== "undefined") {
-        configure({
-          trackLocalhostAs: "test.com",
-        });
+        configure({ hostname: "example.com", devmode: true });
       }
     </script>
   </head>

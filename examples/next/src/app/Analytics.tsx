@@ -4,9 +4,7 @@ import { useEffect } from "react";
 
 export default function Analytics() {
   useEffect(() => {
-    configure({
-      trackLocalhostAs: "test.com",
-    });
+    configure({ hostname: "example.com", devmode: true });
   }, []);
 
   return null;

@@ -84,19 +84,21 @@ event("Purchase", "/product", { amount: 1, color: "green" });
 
 **Config Options:**
 
-| Option             | Type             | Default                                         | Description                                |
-| ------------------ | ---------------- | ----------------------------------------------- | ------------------------------------------ |
-| `collectorUrl`     | `string`         | `"https://collector.onedollarstats.com/events"` | URL to send analytics events               |
-| `trackLocalhostAs` | `string \| null` | `null`                                          | Replace localhost hostname for dev testing |
-| `hashRouting`      | `boolean`        | `false`                                         | Track hash route changes as pageviews      |
-| `autocollect`      | `boolean`        | `true`                                          | Automatically track pageviews & clicks     |
-| `excludePages`     | `string[]`       | `[]`                                            | Pages to ignore for automatic tracking     |
-| `includePages`     | `string[]`       | `[]`                                            | Pages to explicitly include for tracking   |
+| Option             | Type             | Default                                       | Description                                                                       |
+| ------------------ | ---------------- | --------------------------------------------- | --------------------------------------------------------------------------------- |
+| `collectorUrl`     | `string`         | `https://collector.onedollarstats.com/events` | URL to send analytics events                                                      |
+| `trackLocalhostAs` | `string \| null` | `null`                                        | **Deprecated.** Use `hostname` and `devmode`                                      |
+| `hostname`         | `string \| null` | `null`                                        | Override event hostname(for server-side or desktop runtimes) Required for devmode |
+| `devmode`          | `boolean`        | `false`                                       | For dev testing, requires `hostname`                                              |
+| `hashRouting`      | `boolean`        | `false`                                       | Track hash route changes as pageviews                                             |
+| `autocollect`      | `boolean`        | `true`                                        | Automatically track pageviews & clicks                                            |
+| `excludePages`     | `string[]`       | `[]`                                          | Pages to ignore for automatic tracking                                            |
+| `includePages`     | `string[]`       | `[]`                                          | Pages to explicitly include for tracking                                          |
 
 > **Notes:**
 >
 > - Manual calls of `view` or `event` **ignore** `excludePages`/`includePages`.
-> - By default, events from `localhost` are ignored. Use the `trackLocalhostAs` option to simulate a hostname for local development.
+> - By default, events from `localhost` are ignored. Use the `hostname` and `devmode` options to simulate a hostname for local development.
 
 ---
 

@@ -7,7 +7,7 @@
   let { children } = $props();
 
   onMount(() => {
-    configure({ trackLocalhostAs: "example.com" });
+    configure({ hostname: "example.com", devmode: true });
   });
 </script>
 

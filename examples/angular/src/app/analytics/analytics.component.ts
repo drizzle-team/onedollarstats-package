@@ -3,14 +3,12 @@ import { configure } from 'onedollarstats';
 
 @Component({
   selector: 'app-analytics',
-  template: '', // ничего не рендерим
+  template: '', // not render anything
 })
 export class AnalyticsComponent implements OnInit {
   ngOnInit(): void {
-    console.log("AnalyticsComponent initialized");
-    
-    configure({
-      trackLocalhostAs: 'test.com',
-    });
+    console.log('AnalyticsComponent initialized');
+
+    configure({ hostname: 'example.com', devmode: true });
   }
 }

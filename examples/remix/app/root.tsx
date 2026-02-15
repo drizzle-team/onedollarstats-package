@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function Root() {
   useEffect(() => {
-    configure({ trackLocalhostAs: "example.com" });
+    configure({ hostname: "example.com", devmode: true });
   }, []);
   return (
     <html lang='en'>

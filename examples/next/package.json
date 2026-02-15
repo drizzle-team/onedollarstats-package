@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "next": "15.5.4",
-    "onedollarstats": "^0.0.4",
+    "onedollarstats": "^0.0.12",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

@@ -5,7 +5,7 @@
 
   let { children } = $props();
 
-  configure({ trackLocalhostAs: "example.com" });
+  configure({ hostname: "example.com", devmode: true });
 </script>
 
 <svelte:head>

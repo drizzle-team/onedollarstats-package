@@ -1,7 +1,5 @@
 import { configure } from "onedollarstats";
 
 export default defineNuxtPlugin(() => {
-  configure({
-    trackLocalhostAs: "test.com",
-  });
+  configure({ hostname: "example.com", devmode: true });
 });

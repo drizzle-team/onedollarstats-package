@@ -40,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   useEffect(() => {
-    configure({ trackLocalhostAs: "example.com" });
+    configure({ hostname: "example.com", devmode: true });
   }, []);
   return <Outlet />;
 }

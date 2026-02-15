@@ -8,7 +8,7 @@ import Page2 from "./page-2";
 export function App() {
   // Run this only in the browser
   useEffect(() => {
-    configure({ trackLocalhostAs: "example.com" });
+    configure({ hostname: "example.com", devmode: true });
   }, []);
 
   return (
