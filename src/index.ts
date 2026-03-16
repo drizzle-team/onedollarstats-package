@@ -1,4 +1,5 @@
 import type { AnalyticsConfig, BaseProps, BodyToSend, Event, InternalAnalyticsConfig, ViewArguments } from "./types";
+import { detectBot } from "./utils/bot";
 import { createDebugModal } from "./utils/create-modal";
 import { getEnvironment, isClient } from "./utils/environment";
 import { mergeConfig } from "./utils/merge-config";
@@ -70,6 +71,10 @@ class AnalyticsTracker {
   private async send(data: Event): Promise<void> {
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
     if ((isLocalhost && !this.config.devmode) || isHeadlessBrowser) return;
+
+    const { isBot, botKind } = detectBot();
+
+    if (isBot && botKind !== "human") return;
 
     const urlToSend = new URL(this.config.hostname ? `https://${this.config.hostname}${location.pathname}` : location.href);
 
