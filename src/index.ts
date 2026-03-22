@@ -198,7 +198,10 @@ class AnalyticsTracker {
       args.path = resolvePath(pathOrProps);
 
       args.props = props;
-    } else if (typeof pathOrProps === "object") args.props = pathOrProps;
+    } else if (typeof pathOrProps === "object") {
+      args.path = resolvePath();
+      args.props = pathOrProps;
+    }
 
     this.send({ type: eventName, ...args });
   }
