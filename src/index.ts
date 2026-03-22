@@ -187,23 +187,16 @@ class AnalyticsTracker {
    * @param pathOrProps Optional path string or props object.
    * @param props Optional props object if path string is provided.
    */
-  public async event(eventName: string, pathOrProps?: string | BaseProps, props?: BaseProps) {
+  public async event(eventName: string, pathOrProps?: string | BaseProps, rawProps?: BaseProps) {
     if (!isClient()) return;
 
     const { isLocalhost, isHeadlessBrowser } = getEnvironment();
     if ((isLocalhost && !this.config.devmode) || isHeadlessBrowser) return;
 
-    const args: ViewArguments = {};
-    if (typeof pathOrProps === "string") {
-      args.path = resolvePath(pathOrProps);
+    const path = resolvePath(typeof pathOrProps === "string" ? pathOrProps : undefined);
+    const props = typeof pathOrProps === "object" ? pathOrProps : rawProps;
 
-      args.props = props;
-    } else if (typeof pathOrProps === "object") {
-      args.path = resolvePath();
-      args.props = pathOrProps;
-    }
-
-    this.send({ type: eventName, ...args });
+    this.send({ type: eventName, path, props });
   }
 
   /**
