@@ -17,12 +17,17 @@ export const parseUtmParams = (urlSearchParams: URLSearchParams) => {
 
 const recursiveDecode = (value: string): string => {
   let current = value;
-  let decoded = decodeURIComponent(current);
 
-  while (decoded !== current) {
-    current = decoded;
-    decoded = decodeURIComponent(current);
+  try {
+    let decoded = decodeURIComponent(current);
+
+    while (decoded !== current) {
+      current = decoded;
+      decoded = decodeURIComponent(current);
+    }
+
+    return current;
+  } catch {
+    return value;
   }
-
-  return current;
 };
